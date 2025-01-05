@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface usersRepository extends MongoRepository<users, String>{
-
- }
+public interface usersRepository extends MongoRepository<users, String> {
+    users findByEmail(String email); // Add this method for email lookup
+}
