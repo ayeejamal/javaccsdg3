@@ -73,6 +73,38 @@ const SaveItemsAdmin = {
     }
   },
 
+async updateProductAdmin(productId, updatedProductData) {
+    try {
+        // Filter out null or undefined fields to support partial updates
+        const cleanData = Object.fromEntries(
+            Object.entries(updatedProductData).filter(([_, value]) => value !== null && value !== undefined)
+        );
+
+        // Use PATCH for partial updates
+        const response = await axios.patch(
+            `${API_BASE_URL}/api/products/${productId}`, // Use PATCH for partial updates
+            cleanData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            return response.data;
+        }
+    } catch (error) {
+        if (error.response) {
+            console.error('Server responded with an error:', error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error setting up the request:', error.message);
+        }
+        throw error;
+    }
+},
 
                         //place, postShortDescription, tag, title, postSlug, content, status, date, image
   async addProductAdmin( postShortDescription, tag, title, postSlug, content, status, date, image, place) {

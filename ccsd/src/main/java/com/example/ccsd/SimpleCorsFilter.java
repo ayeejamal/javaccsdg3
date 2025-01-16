@@ -24,7 +24,7 @@ public class SimpleCorsFilter implements Filter {
 
         // Set CORS headers
         httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
         httpResponse.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
         httpResponse.setHeader("Access-Control-Max-Age", "3600");
 

@@ -8,19 +8,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PATCH, RequestMethod.DELETE})
 @RestController
 @RequestMapping("/api/products")
 public class productsController {
@@ -87,14 +78,23 @@ public class productsController {
             return ResponseEntity.ok(response);
     }
 
-    // @PutMapping("/{id}")
-    // public ResponseEntity<products> updateProducts(@PathVariable String id, @RequestBody products ProductsDetail) {
-    //     products updatedProducts = productsService.updateProducts(id, ProductsDetail);
-    //     if (updatedProducts != null) {
-    //         return ResponseEntity.ok(updatedProducts);
-    //     }
-    //     return ResponseEntity.notFound().build();
-    // }
+//     @PutMapping("/{id}")
+//     public ResponseEntity<products> updateProducts(@PathVariable String id, @RequestBody products ProductsDetail) {
+//         products updatedProducts = productsService.updateProducts(id, ProductsDetail);
+//         if (updatedProducts != null) {
+//             return ResponseEntity.ok(updatedProducts);
+//         }
+//         return ResponseEntity.notFound().build();
+//     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<products> updateProductPartial(@PathVariable String id, @RequestBody products ProductsDetail) {
+        products updatedProducts = productsService.updateProducts(id, ProductsDetail);
+        if (updatedProducts != null) {
+            return ResponseEntity.ok(updatedProducts);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
     // @DeleteMapping("/{id}")
     // public ResponseEntity<Void> deleteProducts(@PathVariable String id) {

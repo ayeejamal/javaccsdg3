@@ -108,12 +108,12 @@ const GetItemsAdmin = {
   },
 
     async getTeamDataAdminEdit(userId) {
-    const token = await localStorage.getItem('jwtToken');
+    const token = localStorage.getItem('jwtToken');
 
     
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/users${userId}`,
+        `${API_BASE_URL}/api/users/${userId}`,
 
         {
           // request headers
