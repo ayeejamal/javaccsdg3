@@ -271,7 +271,7 @@ const SelectProduct = () => {
                 filterProducts(statusFilter);
                 setOpenConfirm(false);
                 setSelectedProduct(null);
-                navigate("/select-product");
+                navigate("/services");
             } else {
                 console.error("Failed to delete product:", response.statusText);
             }
