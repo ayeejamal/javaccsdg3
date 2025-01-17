@@ -106,6 +106,34 @@ async updateProductAdmin(productId, updatedProductData) {
     }
 },
 
+async uploadProductImage(productId, formData) {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/products/${productId}/upload-image`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    if (error.response) {
+      console.error("Server responded with an error:", error.response.data);
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+    } else {
+      console.error("Error setting up the request:", error.message);
+    }
+    throw error;
+  }
+},
+
                         //place, postShortDescription, tag, title, postSlug, content, status, date, image
   async addProductAdmin( postShortDescription, tag, title, postSlug, content, status, date, image, place) {
     const token = await localStorage.getItem('jwtToken');

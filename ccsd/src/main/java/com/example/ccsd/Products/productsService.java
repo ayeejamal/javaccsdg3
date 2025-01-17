@@ -44,6 +44,7 @@ public class productsService {
     }
 
     public void deleteProducts(String id) {
+        System.out.println("Attempting to delete product with ID: " + id);
         ProductsRepository.deleteById(id);
     }
 

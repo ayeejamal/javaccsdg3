@@ -87,6 +87,37 @@ public class productsController {
 //         return ResponseEntity.notFound().build();
 //     }
 
+    /**
+     * New endpoint to upload an image for a product by ID.
+     */
+    @PostMapping("/{id}/upload-image")
+    public ResponseEntity<Map<String, Object>> uploadProductImage(@PathVariable String id, @RequestParam("image") MultipartFile image) {
+        try {
+            // Get the product by ID
+            products product = productsService.getProductsById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+            // Update the product's image
+            product.setImageStore(image.getBytes());
+
+            // Save the updated product
+            products updatedProduct = productsService.updateProducts(id, product);
+
+            // Create a response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Image uploaded successfully.");
+            response.put("product", updatedProduct);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "error", "Failed to upload image."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<products> updateProductPartial(@PathVariable String id, @RequestBody products ProductsDetail) {
         products updatedProducts = productsService.updateProducts(id, ProductsDetail);
@@ -96,10 +127,11 @@ public class productsController {
         return ResponseEntity.notFound().build();
     }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<Void> deleteProducts(@PathVariable String id) {
-    //     productsService.deleteProducts(id);
-    //     return ResponseEntity.noContent().build();
-    // }
+    @CrossOrigin(origins = "http://localhost:3000")
+    @DeleteMapping("/{id}")
+     public ResponseEntity<Void> deleteProducts(@PathVariable String id) {
+         productsService.deleteProducts(id);
+         return ResponseEntity.noContent().build();
+     }
 
 }

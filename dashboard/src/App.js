@@ -11,7 +11,7 @@ import WebsiteComponentsAdmin from "./HodViews/scense/websites/websiteComponents
 import Services from "./HodViews/scense/services";
 import AddProduct from "./HodViews/scense/services/addProduct";
 import EditProduct from "./HodViews/scense/services/editProduct"; //newly created
-import SelectProductToEdit from "./HodViews/scense/services/selectProductToEdit"; //newly created
+import SelectProduct from "./HodViews/scense/services/selectProduct"; //newly created
 import AddWebsiteText from "./HodViews/scense/websites/addWebsiteTexts";
 import AddWebsiteImage from "./HodViews/scense/websites/addWebsiteImage";
 import AddWebsiteGallery from "./HodViews/scense/websites/addWebsiteGallery";
@@ -145,10 +145,10 @@ function App() {
       />
 
             <Route
-              path="/select-product-to-edit"
+              path="/select-product"
               element={
                 <HodViewsLayout>
-                  <SelectProductToEdit />
+                  <SelectProduct />
                 </HodViewsLayout>
               }
             />

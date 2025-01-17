@@ -18,6 +18,8 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { useNavigate } from 'react-router-dom';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import Header from "../../../components/Header";
@@ -35,6 +37,14 @@ const AddProduct = () => {
   const [status, setStatus] = useState(null);
   const [date, setDate] = useState(null);
   const [content, setContent] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -51,13 +61,29 @@ const AddProduct = () => {
         place
       );
       if (success) {
-        navigate("/services");
+        setSnackbar({
+          open: true,
+          message: 'Product added successfully!',
+          severity: 'success'
+        });
+        // Add a slight delay before navigation to allow the snackbar to be seen
+        setTimeout(() => {
+          navigate("/services");
+        }, 2000);
       } else {
-        alert("Error Saving data");
+        setSnackbar({
+          open: true,
+          message: 'Error saving product',
+          severity: 'error'
+        });
       }
     } catch (error) {
       console.error("Saving Error:", error);
-      alert("An error occurred while saving.");
+      setSnackbar({
+        open: true,
+        message: 'An error occurred while saving the product',
+        severity: 'error'
+      });
     }
   };
 
@@ -83,44 +109,33 @@ const AddProduct = () => {
         onSubmit={handleSubmit}
         sx={{
           display: 'grid',
-          gap: 2,
+          gap: 3,
           gridTemplateColumns: 'repeat(12, 1fr)',
           '& > *': { m: 0 }
         }}
       >
-        {/* Title - spans 4 columns */}
+        {/* Row 1 */}
         <TextField
           label="Enter Product Title"
           variant="filled"
           onChange={(e) => setTitle(e.target.value)}
-          sx={{ gridColumn: 'span 4' }}
+          sx={{ gridColumn: 'span 6' }}
           required
         />
 
-        {/* Slug - spans 4 columns */}
-        <TextField
-          label="Enter Product Slug"
-          variant="filled"
-          onChange={(e) => setPostSlug(e.target.value)}
-          sx={{ gridColumn: 'span 4' }}
-          required
-        />
-
-        {/* Date - spans 4 columns */}
-        <FormControl variant="filled" sx={{ gridColumn: 'span 4' }}>
+        <FormControl variant="filled" sx={{ gridColumn: 'span 3' }}>
           <FilledInput
             type="date"
             onChange={(e) => setDate(e.target.value)}
             required
           />
-          <FormHelperText>Publish Date</FormHelperText>
+          <FormHelperText>Created Date</FormHelperText>
         </FormControl>
 
-        {/* Status - spans 3 columns */}
         <FormControl variant="filled" sx={{ gridColumn: 'span 3' }}>
           <InputLabel>Status</InputLabel>
           <Select
-            value={status || ''}
+            value={status}
             onChange={(e) => setStatus(e.target.value)}
             required
           >
@@ -129,22 +144,8 @@ const AddProduct = () => {
           </Select>
         </FormControl>
 
-        {/* Place - spans 3 columns */}
-        <FormControl variant="filled" sx={{ gridColumn: 'span 3' }}>
-          <InputLabel>Product Place</InputLabel>
-          <Select
-            value={place || ''}
-            onChange={(e) => setPlace(e.target.value)}
-            required
-          >
-            {[...Array(12)].map((_, i) => (
-              <MenuItem key={i + 1} value={i + 1}>{i + 1}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Price Tag - spans 6 columns */}
-        <FormControl variant="filled" sx={{ gridColumn: 'span 6' }}>
+        {/* Row 2 - Price Tag and Description side by side */}
+        <FormControl variant="filled" sx={{ gridColumn: 'span 4' }}>
           <InputLabel>Price Tag</InputLabel>
           <FilledInput
             onChange={(e) => setTag(e.target.value)}
@@ -152,12 +153,11 @@ const AddProduct = () => {
           />
         </FormControl>
 
-        {/* Short Description - spans full width */}
-        <FormControl variant="filled" sx={{ gridColumn: 'span 12' }}>
+        <FormControl variant="filled" sx={{ gridColumn: 'span 8' }}>
           <InputLabel>Product Short Description</InputLabel>
           <FilledInput
             multiline
-            rows={3}
+            rows={1}
             onChange={(e) => setPostShortDescription(e.target.value)}
             endAdornment={
               <InputAdornment position="end">
@@ -170,7 +170,7 @@ const AddProduct = () => {
           />
         </FormControl>
 
-        {/* Image Upload - spans 6 columns */}
+        {/* Row 3 - Image Upload */}
         <FormControl variant="filled" sx={{ gridColumn: 'span 6' }}>
           <Input
             accept="image/*"
@@ -182,20 +182,39 @@ const AddProduct = () => {
           <FormHelperText>Product Image</FormHelperText>
         </FormControl>
 
-        {/* Save Button - spans 6 columns */}
-        <Button
-          type="submit"
-          color="success"
-          variant="contained"
-          size="large"
-          sx={{
-            gridColumn: 'span 6',
-            height: '48px'
-          }}
-        >
-          Save Product
-        </Button>
+        {/* Row 4 - Save Button */}
+        <Box sx={{ gridColumn: 'span 12', display: 'flex', justifyContent: 'flex-start', mt: 2 }}>
+          <Button
+            type="submit"
+            color="success"
+            variant="contained"
+            size="large"
+            sx={{
+              width: '200px',
+              height: '48px'
+            }}
+          >
+            Save Product
+          </Button>
+        </Box>
       </Box>
+
+      {/* Snackbar Alert */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

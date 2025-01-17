@@ -1,180 +1,213 @@
 import React, { useState, useEffect } from 'react';
-import { Box, useTheme, Button, DialogActions, Dialog, DialogContent, DialogTitle, Stack, FormControl, FormHelperText, InputLabel, Input, Select, MenuItem, TextField, FilledInput, InputAdornment, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  FilledInput,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  Input,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { useNavigate, useParams } from 'react-router-dom';
-import { tokens } from "../../../base/theme";
-import Header from "../../../components/Header";
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
-
+import Header from "../../../components/Header";
 import GetData from '../../../data/getData';
 import SaveItemsAdmin from '../../saveItemAdmin';
 
 const EditProduct = () => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const { id } = useParams(); // Assuming we get product ID from route
-    const [product, setProduct] = useState(null);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [title, setTitle] = useState("");
+  const [postShortDescription, setPostShortDescription] = useState("");
+  const [tag, setTag] = useState("");
+  const [dateProduct, setDateProduct] = useState("");
+  const [status, setStatus] = useState("");
+  const [image, setImage] = useState(null);
 
-    const [title, setTitle] = useState("");
-    const [postSlug, setPostSlug] = useState("");
-    const [postShortDescription, setPostShortDescription] = useState("");
-    const [tag, setTag] = useState("");
-    const [place, setPlace] = useState("");
-    const [dateProduct, setDateProduct] = useState("");
-    const [status, setStatus] = useState("");
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const data = await GetData.getProduct(id);
+        setProduct(data);
+        setTitle(data.title || "");
+        setPostShortDescription(data.postShortDescription || "");
+        setTag(data.tag || "");
+        setStatus(data.status || "");
+        setDateProduct(data.dateProduct || "");
+        setImage(data.image || "");
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        // Load product data on component mount
-        const fetchProduct = async () => {
-            try {
-                const data = await GetData.getProduct(id);
-                console.log("Fetched product data:", data); // Debugging line
-                setProduct(data);
-                // Set other fields based on product data
-                setTitle(data.title || "");
-                setPostSlug(data.postSlug || "");
-                setPostShortDescription(data.postShortDescription || "");
-                setTag(data.tag || "");
-                setPlace(data.place || "");
-                setStatus(data.status || "");
-                setDateProduct(data.dateProduct || ""); // Ensuring the date is set properly
-            } catch (error) {
-                console.error("Error fetching product data:", error);
-            }
-        };
-        fetchProduct();
-    }, [id]);
-
-    const handleChangeStatus = (event) => setStatus(event.target.value);
-    const handleChangePlace = (event) => setPlace(event.target.value);
-
-const handleSaveProduct = async (event) => {
+  const handleSaveProduct = async (event) => {
     event.preventDefault();
-
     try {
-        const currentProductData = { ...product }; // Clone the current product data
+      const currentProductData = { ...product };
+      const updatedProductData = {
+        ...currentProductData,
+        ...(title !== product.title && { title }),
+        ...(dateProduct !== product.dateProduct && { dateProduct }),
+        ...(postShortDescription !== product.postShortDescription && { postShortDescription }),
+        ...(tag !== product.tag && { tag }),
+        ...(status !== product.status && { status }),
+      };
 
-        // Merge current data with only the updated fields
-        const updatedProductData = {
-            ...currentProductData,
-            ...(title !== product.title && { title }),
-            ...(dateProduct !== product.dateProduct && { dateProduct }),
-            ...(postSlug !== product.postSlug && { postSlug }),
-            ...(postShortDescription !== product.postShortDescription && { postShortDescription }),
-            ...(tag !== product.tag && { tag }),
-            ...(place !== product.place && { place }),
-            ...(status !== product.status && { status }),
-        };
+    let imageUploadSuccess = true;
 
-        console.log('Merged data:', updatedProductData);
+    // Handle image upload separately if updated
+    if (image) {
+      const formData = new FormData();
+      formData.append("image", image);
 
-        const success = await SaveItemsAdmin.updateProductAdmin(id, updatedProductData);
+      // Call a separate image upload endpoint
+      imageUploadSuccess = await SaveItemsAdmin.uploadProductImage(id, formData);
+    }
 
-        if (success) {
-            navigate("/services");
-        } else {
-            alert("Error updating product.");
-        }
+    if (!imageUploadSuccess) {
+      alert("Error uploading the image.");
+      return;
+    }
+
+      const success = await SaveItemsAdmin.updateProductAdmin(id, updatedProductData);
+      if (success) {
+        navigate("/services");
+      } else {
+        alert("Error updating product.");
+      }
     } catch (error) {
-        console.error("Update error:", error);
-        alert("An error occurred while saving.");
+      console.error("Update error:", error);
+      alert("An error occurred while saving.");
     }
-};
+  };
 
+  if (!product) {
+    return <Box sx={{ p: 3 }}>Loading...</Box>;
+  }
 
+  return (
+    <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 3 }}>
+      <Header title="Edit Product" subtitle="Update the Fields Below" />
 
-    if (!product) {
-        return <Box>Loading...</Box>;
-    }
+      <Box
+        component="form"
+        onSubmit={handleSaveProduct}
+        sx={{
+          display: 'grid',
+          gap: 3,
+          gridTemplateColumns: 'repeat(12, 1fr)',
+          '& > *': { m: 0 }
+        }}
+      >
+        {/* Row 1 */}
+        <TextField
+          label="Product Title"
+          variant="filled"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          sx={{ gridColumn: 'span 6' }}
+          required
+        />
 
-    return (
-        <Box>
-            <Header title="Edit Product" subtitle="Update the Fields Below" />
-            <Box sx={{ display: 'flex', flexWrap: 'wrap' }} component="form" noValidate onSubmit={handleSaveProduct}>
-                <TextField
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    label="Product Title"
-                    id="title"
-                    sx={{ m: 1, width: '30.5%' }}
-                    variant="filled"
-                />
-                <TextField
-                    value={postSlug}
-                    onChange={(e) => setPostSlug(e.target.value)}
-                    label="Product Slug"
-                    id="slug"
-                    sx={{ m: 1, width: '30.5%' }}
-                    variant="filled"
-                />
-                <FormControl sx={{ m: 1, width: '30.5%' }} variant="filled">
-                    <FilledInput
-                        value={dateProduct}
-                        onChange={(e) => setDateProduct(e.target.value)}
-                        id="date"
-                        type="date"
-                    />
-                    <FormHelperText>Publish Date</FormHelperText>
-                </FormControl>
-                <FormControl sx={{ m: 1, width: '15.5%' }} variant="filled">
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                        value={status}
-                        onChange={handleChangeStatus}
-                    >
-                        <MenuItem value="0">Draft</MenuItem>
-                        <MenuItem value="1">Publish</MenuItem>
-                    </Select>
-                </FormControl>
-                <FormControl sx={{ m: 1, width: '15.5%' }} variant="filled">
-                    <InputLabel>Product Place</InputLabel>
-                    <Select
-                        value={place}
-                        onChange={handleChangePlace}
-                    >
-                        {Array.from({ length: 12 }, (_, index) => (
-                            <MenuItem key={index + 1} value={index + 1}>
-                                {index + 1}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                <FormControl sx={{ m: 1, width: '60%' }} variant="filled">
-                    <InputLabel>Tags</InputLabel>
-                    <FilledInput
-                        value={tag}
-                        onChange={(e) => setTag(e.target.value)}
-                    />
-                </FormControl>
-                <FormControl sx={{ m: 1, width: '93%' }} variant="filled">
-                    <InputLabel>Short Description</InputLabel>
-                    <FilledInput
-                        value={postShortDescription}
-                        onChange={(e) => setPostShortDescription(e.target.value)}
-                        multiline
-                        rows={3}
-                    />
-                </FormControl>
-                <Button
-                    sx={{ m: 1, width: '46%' }}
-                    color="success"
-                    variant="contained"
-                    type="submit"
-                >
-                    Save Changes
-                </Button>
-                <Button
-                    sx={{ m: 1, width: '46%' }}
-                    color="error"
-                    variant="contained"
-                    onClick={() => navigate("/products")}
-                >
-                    Cancel
-                </Button>
-            </Box>
+        <FormControl variant="filled" sx={{ gridColumn: 'span 3' }}>
+          <FilledInput
+            type="date"
+            value={dateProduct}
+            onChange={(e) => setDateProduct(e.target.value)}
+            required
+          />
+          <FormHelperText>Created Date</FormHelperText>
+        </FormControl>
+
+        <FormControl variant="filled" sx={{ gridColumn: 'span 3' }}>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={status || ''}
+            onChange={(e) => setStatus(e.target.value)}
+            required
+          >
+            <MenuItem value="0">Draft</MenuItem>
+            <MenuItem value="1">Publish</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* Row 2 */}
+        <FormControl variant="filled" sx={{ gridColumn: 'span 4' }}>
+          <InputLabel>Price Tag</InputLabel>
+          <FilledInput
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+            required
+          />
+        </FormControl>
+
+        <FormControl variant="filled" sx={{ gridColumn: 'span 8' }}>
+          <InputLabel>Short Description</InputLabel>
+          <FilledInput
+            value={postShortDescription}
+            onChange={(e) => setPostShortDescription(e.target.value)}
+            multiline
+            rows={1}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton edge="end">
+                  <SmartToyOutlinedIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+            required
+          />
+        </FormControl>
+
+        {/* Row 3 - Image Upload */}
+        <FormControl variant="filled" sx={{ gridColumn: 'span 6' }}>
+          <Input
+            accept="image/*"
+            id="image-upload"
+            type="file"
+            onChange={(e) => setImage(e.target.files[0])}
+          />
+          <FormHelperText>Update Product Image (Optional)</FormHelperText>
+        </FormControl>
+
+        {/* Row 4 - Buttons */}
+        <Box sx={{ gridColumn: 'span 12', display: 'flex', gap: 2, mt: 2 }}>
+          <Button
+            type="submit"
+            color="success"
+            variant="contained"
+            size="large"
+            sx={{
+              width: '200px',
+              height: '48px'
+            }}
+          >
+            Save Changes
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            size="large"
+            onClick={() => navigate("/products")}
+            sx={{
+              width: '200px',
+              height: '48px'
+            }}
+          >
+            Cancel
+          </Button>
         </Box>
-    );
+      </Box>
+    </Box>
+  );
 };
 
 export default EditProduct;
