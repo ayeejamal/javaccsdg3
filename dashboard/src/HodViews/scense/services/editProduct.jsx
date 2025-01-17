@@ -79,7 +79,7 @@ const EditProduct = () => {
 
       const success = await SaveItemsAdmin.updateProductAdmin(id, updatedProductData);
       if (success) {
-        navigate("/services");
+        navigate("/select-product");
       } else {
         alert("Error updating product.");
       }
