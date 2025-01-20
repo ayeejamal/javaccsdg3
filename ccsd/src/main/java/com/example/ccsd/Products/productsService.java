@@ -27,13 +27,24 @@ public class productsService {
     public products updateProducts(String id, products ProductsDetail) {
         Optional<products> product = ProductsRepository.findById(id);
         if (product.isPresent()) {
-            ProductsDetail.setId(id);
-            return ProductsRepository.save(ProductsDetail);
+            products productToUpdate = product.get();
+            productToUpdate.setTitle(ProductsDetail.getTitle()); // Update fields as necessary
+            productToUpdate.setPostSlug(ProductsDetail.getPostSlug());
+            productToUpdate.setPostShortDescription(ProductsDetail.getPostShortDescription());
+            productToUpdate.setTag(ProductsDetail.getTag());
+            productToUpdate.setPlace(ProductsDetail.getPlace());
+            productToUpdate.setDateProduct(ProductsDetail.getDateProduct());
+            productToUpdate.setStatus(ProductsDetail.getStatus());
+            productToUpdate.setImageStore64String(ProductsDetail.getImageStore64String());
+
+            return ProductsRepository.save(productToUpdate); // Save the updated product
         }
-        return null;
+
+        return null; // Return null if the product doesn't exist
     }
 
     public void deleteProducts(String id) {
+        System.out.println("Attempting to delete product with ID: " + id);
         ProductsRepository.deleteById(id);
     }
 

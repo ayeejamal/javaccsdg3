@@ -1,7 +1,6 @@
 name: ccsd
 
 services:
-
   backend:
     build: ./ccsd
     restart: always
@@ -9,8 +8,8 @@ services:
       - 8082:8082
     volumes:
       - ./ccsd/src:/app/src
-    # environment:
-    #   MONGO_URI: mongodb://root:Arman123@mongo:27017/
+#    environment:
+#      MONGO_URI: mongodb://root:Arman123@mongo:27017/
     networks:
       - mognonetwork
     depends_on:
@@ -50,7 +49,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: Arman123
-      ME_CONFIG_MONGODB_URL: mongodb://${root}:${Arman123}@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:Arman123@mongo:27017/
       ME_CONFIG_BASICAUTH: false
     networks:
       - mognonetwork
